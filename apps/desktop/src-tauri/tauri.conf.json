@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "jclaw-desktop",
+  "version": "0.1.0",
+  "identifier": "com.jclaw.desktop",
+  "build": {
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "jclaw-desktop",
+        "width": 1000,
+        "height": 700
+      }
+    ]
+  },
+  "bundle": {
+    "active": false,
+    "icon": []
+  }
+}
