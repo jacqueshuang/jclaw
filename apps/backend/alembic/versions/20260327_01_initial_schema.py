@@ -32,7 +32,7 @@ def upgrade() -> None:
         sa.Column("id", sa.String(length=36), primary_key=True),
         sa.Column("plan_name", sa.String(length=64), nullable=False),
         sa.Column("task_quota", sa.Integer(), nullable=False),
-        sa.Column("task_usage", sa.Integer(), nullable=False, server_default="0"),
+        sa.Column("task_usage", sa.Integer(), nullable=False),
     )
 
     op.create_table(
