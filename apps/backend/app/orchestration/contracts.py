@@ -1,6 +1,11 @@
 from dataclasses import dataclass
 
 
+@dataclass(frozen=True)
+class SourceContent:
+    content: str
+
+
 @dataclass
 class ResearchResult:
     summary: str
