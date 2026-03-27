@@ -1,10 +1,22 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 
+import * as api from '../src/lib/api'
 import TaskWorkspacePage from '../src/pages/TaskWorkspacePage.vue'
+
+vi.mock('../src/lib/api', async () => {
+  const actual = await vi.importActual<typeof import('../src/lib/api')>('../src/lib/api')
+
+  return {
+    ...actual,
+    getTask: vi.fn().mockResolvedValue(null),
+  }
+})
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  vi.mocked(api.getTask).mockReset()
+  vi.mocked(api.getTask).mockResolvedValue(null)
 })
 
 describe('TaskWorkspacePage', () => {
@@ -103,23 +115,37 @@ describe('TaskWorkspacePage', () => {
     expect(wrapper.text()).toContain('任务提交失败，请稍后重试。')
   })
 
-  it('renders delivered task panels', async () => {
-    const wrapper = mount(TaskWorkspacePage, {
-      global: {
-        mocks: {
-          $api: {
-            getTask: async () => ({
-              status: 'delivered',
-              knowledge_pack: { summary: 'Research summary', outline: '- intro' },
-              deliverable: { content_markdown: '# Draft', content_type: 'article' },
-            }),
-          },
-        },
-      },
-    })
+  it('shows detail loading state while fetching task detail', async () => {
+    vi.mocked(api.getTask).mockImplementation(() => new Promise(() => {}))
+
+    const wrapper = mount(TaskWorkspacePage)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('任务详情加载中...')
+  })
+
+  it('shows detail error when fetching task detail fails', async () => {
+    vi.mocked(api.getTask).mockRejectedValue(new Error('network'))
+
+    const wrapper = mount(TaskWorkspacePage)
 
     await flushPromises()
 
+    expect(wrapper.text()).toContain('任务详情加载失败，请稍后重试。')
+  })
+
+  it('renders delivered task panels', async () => {
+    vi.mocked(api.getTask).mockResolvedValue({
+      status: 'delivered',
+      knowledge_pack: { summary: 'Research summary', outline: '- intro' },
+      deliverable: { content_markdown: '# Draft', content_type: 'article' },
+    })
+
+    const wrapper = mount(TaskWorkspacePage)
+
+    await flushPromises()
+
+    expect(api.getTask).toHaveBeenCalledWith('latest')
     expect(wrapper.text()).toContain('Research summary')
     expect(wrapper.text()).toContain('# Draft')
   })
