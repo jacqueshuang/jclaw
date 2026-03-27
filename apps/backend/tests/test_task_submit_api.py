@@ -1,14 +1,59 @@
 import uuid
 
+import app.models.deliverable  # noqa: F401
+import app.models.knowledge_pack  # noqa: F401
 import pytest
 from sqlalchemy import event, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.models.deliverable import Deliverable
+from app.models.knowledge_pack import KnowledgePack
 from app.models.source import Source
 from app.models.task import Task
 from app.schemas.task import TaskCreateRequest
 from app.services.task_service import TaskService
+
+
+@pytest.fixture
+def seeded_delivered_task(db_session: Session) -> Task:
+    task = Task(
+        id=str(uuid.uuid4()),
+        title="Seeded delivered task",
+        status="delivered",
+        user_prompt="Research browser agents",
+    )
+    db_session.add(task)
+    db_session.commit()
+
+    db_session.add(
+        KnowledgePack(
+            id=str(uuid.uuid4()),
+            task_id=task.id,
+            summary="Summary text",
+            outline="- Point one",
+        )
+    )
+    db_session.add(
+        Deliverable(
+            id=str(uuid.uuid4()),
+            task_id=task.id,
+            content_markdown="# Delivered article",
+            content_type="article",
+        )
+    )
+    db_session.commit()
+    return task
+
+
+def test_get_task_detail_returns_deliverable(client, seeded_delivered_task) -> None:
+    response = client.get(f"/api/tasks/{seeded_delivered_task.id}")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "delivered"
+    assert body["deliverable"]["content_type"] == "article"
+    assert body["knowledge_pack"]["summary"] != ""
 
 
 def test_submit_task_creates_received_task(client) -> None:
