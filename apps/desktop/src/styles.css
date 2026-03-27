@@ -1,0 +1,33 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.task-workspace {
+  padding: 24px;
+}
+
+form {
+  display: grid;
+  gap: 12px;
+  max-width: 720px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 8px;
+}
+
+button {
+  width: fit-content;
+}
