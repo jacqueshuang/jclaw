@@ -14,3 +14,13 @@ export async function createTask(payload: unknown) {
 
   return response.json()
 }
+
+export async function getTask(taskId: string) {
+  const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`)
+
+  if (!response.ok) {
+    throw new Error(`Get task request failed: ${response.status} ${response.statusText}`)
+  }
+
+  return response.json()
+}

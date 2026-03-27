@@ -102,4 +102,25 @@ describe('TaskWorkspacePage', () => {
 
     expect(wrapper.text()).toContain('任务提交失败，请稍后重试。')
   })
+
+  it('renders delivered task panels', async () => {
+    const wrapper = mount(TaskWorkspacePage, {
+      global: {
+        mocks: {
+          $api: {
+            getTask: async () => ({
+              status: 'delivered',
+              knowledge_pack: { summary: 'Research summary', outline: '- intro' },
+              deliverable: { content_markdown: '# Draft', content_type: 'article' },
+            }),
+          },
+        },
+      },
+    })
+
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Research summary')
+    expect(wrapper.text()).toContain('# Draft')
+  })
 })
