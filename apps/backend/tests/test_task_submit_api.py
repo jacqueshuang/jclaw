@@ -213,14 +213,13 @@ def test_submit_task_rejects_when_subscription_quota_is_exhausted(
     client,
     db_session: Session,
 ) -> None:
-    db_session.add(
-        Subscription(
-            id=str(uuid.uuid4()),
-            plan_name="single-user",
-            task_quota=1,
-            task_usage=1,
-        )
+    subscription = Subscription(
+        id=str(uuid.uuid4()),
+        plan_name="single-user",
+        task_quota=1,
+        task_usage=1,
     )
+    db_session.add(subscription)
     db_session.commit()
 
     response = client.post(
@@ -237,3 +236,73 @@ def test_submit_task_rejects_when_subscription_quota_is_exhausted(
     assert response.status_code == status.HTTP_402_PAYMENT_REQUIRED
     assert response.json()["detail"] == "Task quota exceeded"
     assert db_session.execute(text("select count(*) from tasks")).scalar_one() == 0
+    assert db_session.get(Subscription, subscription.id).task_usage == 1
+
+
+def test_submit_task_claim_prevents_quota_oversell_in_mvp_path(client, db_session: Session) -> None:
+    subscription = Subscription(
+        id=str(uuid.uuid4()),
+        plan_name="single-user",
+        task_quota=1,
+        task_usage=0,
+    )
+    db_session.add(subscription)
+    db_session.commit()
+
+    payload = {
+        "title": "Write market overview",
+        "user_prompt": "Research AI browser agents and write an article.",
+        "sources": [{"source_type": "text", "title": "brief", "content": "Focus on 2026 products."}],
+    }
+
+    first = client.post("/api/tasks", json=payload)
+    second = client.post("/api/tasks", json=payload)
+
+    assert first.status_code == status.HTTP_201_CREATED
+    assert second.status_code == status.HTTP_402_PAYMENT_REQUIRED
+    assert db_session.execute(text("select count(*) from tasks")).scalar_one() == 1
+    assert db_session.get(Subscription, subscription.id).task_usage == 1
+
+
+def test_submit_task_uses_deterministic_single_user_subscription_selection(
+    client,
+    db_session: Session,
+) -> None:
+    db_session.add(
+        Subscription(
+            id="zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz",
+            plan_name="starter",
+            task_quota=999,
+            task_usage=0,
+        )
+    )
+    first_single_user = Subscription(
+        id="00000000-0000-0000-0000-000000000001",
+        plan_name="single-user",
+        task_quota=3,
+        task_usage=0,
+    )
+    second_single_user = Subscription(
+        id="00000000-0000-0000-0000-000000000002",
+        plan_name="single-user",
+        task_quota=3,
+        task_usage=0,
+    )
+    db_session.add(first_single_user)
+    db_session.add(second_single_user)
+    db_session.commit()
+
+    response = client.post(
+        "/api/tasks",
+        json={
+            "title": "Write market overview",
+            "user_prompt": "Research AI browser agents and write an article.",
+            "sources": [
+                {"source_type": "text", "title": "brief", "content": "Focus on 2026 products."}
+            ],
+        },
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert db_session.get(Subscription, first_single_user.id).task_usage == 1
+    assert db_session.get(Subscription, second_single_user.id).task_usage == 0
