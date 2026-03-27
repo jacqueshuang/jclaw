@@ -25,10 +25,19 @@ const title = ref('')
 const content = ref('')
 
 function addTextSource() {
+  const nextTitle = title.value.trim()
+  const nextContent = content.value.trim()
+  if (!nextTitle || !nextContent) {
+    return
+  }
+
   emit('add-text-source', {
     source_type: 'text',
-    title: title.value,
-    content: content.value,
+    title: nextTitle,
+    content: nextContent,
   })
+
+  title.value = ''
+  content.value = ''
 }
 </script>

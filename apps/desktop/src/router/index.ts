@@ -1,8 +1,2 @@
-import TaskWorkspacePage from '../pages/TaskWorkspacePage.vue'
-
-export const routes = [
-  {
-    path: '/',
-    component: TaskWorkspacePage,
-  },
-]
+// Task 13 placeholder: router wiring is not enabled in main.ts yet.
+export const routes: [] = []

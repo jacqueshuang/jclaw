@@ -34,9 +34,15 @@ function addTextSource(source: { source_type: 'text'; title: string; content: st
 }
 
 function submit() {
+  const nextTitle = title.value.trim()
+  const nextUserPrompt = userPrompt.value.trim()
+  if (!nextTitle || !nextUserPrompt) {
+    return
+  }
+
   emit('submit', {
-    title: title.value,
-    user_prompt: userPrompt.value,
+    title: nextTitle,
+    user_prompt: nextUserPrompt,
     sources: sources.value,
   })
 }
