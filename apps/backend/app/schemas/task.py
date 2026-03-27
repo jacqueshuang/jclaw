@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 from app.schemas.deliverable import DeliverableResponse
 from app.schemas.knowledge_pack import KnowledgePackResponse
-from app.schemas.source import SourceInput
+from app.schemas.source import SourceInput, SourceOutput
 
 
 class TaskCreateRequest(BaseModel):
@@ -16,7 +16,7 @@ class TaskResponse(BaseModel):
     title: str
     status: str
     user_prompt: str
-    sources: list[SourceInput]
+    sources: list[SourceOutput]
 
 
 class TaskDetailResponse(TaskResponse):

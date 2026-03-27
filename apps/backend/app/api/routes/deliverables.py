@@ -1,3 +1,1 @@
-from fastapi import APIRouter
-
-router = APIRouter(prefix="/api/deliverables", tags=["deliverables"])
+"""Task 10 placeholder: deliverables endpoints are not defined yet."""

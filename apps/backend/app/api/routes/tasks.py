@@ -9,7 +9,7 @@ from app.models.source import Source
 from app.models.task import Task
 from app.schemas.deliverable import DeliverableResponse
 from app.schemas.knowledge_pack import KnowledgePackResponse
-from app.schemas.source import SourceInput
+from app.schemas.source import SourceOutput
 from app.schemas.task import TaskCreateRequest, TaskDetailResponse, TaskResponse
 from app.services.task_service import TaskService
 
@@ -38,7 +38,7 @@ def get_task(task_id: str, db: Session = Depends(get_db)) -> TaskDetailResponse:
         status=task.status,
         user_prompt=task.user_prompt,
         sources=[
-            SourceInput(
+            SourceOutput(
                 source_type=source.source_type,
                 title=source.title,
                 content=source.content,

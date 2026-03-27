@@ -7,3 +7,11 @@ class SourceInput(BaseModel):
     source_type: str
     title: str
     content: str
+
+
+class SourceOutput(BaseModel):
+    """Normalized source payload returned by task read APIs."""
+
+    source_type: str
+    title: str
+    content: str

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.models.source import Source
 from app.models.task import Task
-from app.schemas.source import SourceInput
+from app.schemas.source import SourceInput, SourceOutput
 from app.schemas.task import TaskCreateRequest, TaskResponse
 
 
@@ -43,7 +43,7 @@ class TaskService:
             status=task.status,
             user_prompt=task.user_prompt,
             sources=[
-                SourceInput(
+                SourceOutput(
                     source_type=source.source_type,
                     title=source.title,
                     content=source.content,

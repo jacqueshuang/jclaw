@@ -1,5 +1,6 @@
 import uuid
 
+import app.api.routes.deliverables as deliverables_routes
 import app.models.deliverable  # noqa: F401
 import app.models.knowledge_pack  # noqa: F401
 import pytest
@@ -11,7 +12,8 @@ from app.models.deliverable import Deliverable
 from app.models.knowledge_pack import KnowledgePack
 from app.models.source import Source
 from app.models.task import Task
-from app.schemas.task import TaskCreateRequest
+from app.schemas.source import SourceOutput
+from app.schemas.task import TaskCreateRequest, TaskDetailResponse, TaskResponse
 from app.services.task_service import TaskService
 
 
@@ -132,6 +134,28 @@ def test_sqlite_enforces_foreign_keys_in_tests(db_session: Session) -> None:
         db_session.commit()
 
     db_session.rollback()
+
+
+def test_deliverables_route_module_is_explicit_placeholder() -> None:
+    assert not hasattr(deliverables_routes, "router")
+
+
+
+def test_task_source_schema_split_for_read_models() -> None:
+    sample = {
+        "id": str(uuid.uuid4()),
+        "title": "Write market overview",
+        "status": "received",
+        "user_prompt": "Research AI browser agents and write an article.",
+        "sources": [{"source_type": "text", "title": "brief", "content": "Focus on 2026 products."}],
+    }
+
+    task_response = TaskResponse.model_validate(sample)
+    task_detail_response = TaskDetailResponse.model_validate(sample)
+
+    assert isinstance(task_response.sources[0], SourceOutput)
+    assert isinstance(task_detail_response.sources[0], SourceOutput)
+
 
 
 def test_task_service_returns_persisted_sources(db_session: Session) -> None:
