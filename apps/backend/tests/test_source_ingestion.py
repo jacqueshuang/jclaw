@@ -19,3 +19,22 @@ def test_normalize_url_source(monkeypatch) -> None:
 
     assert source["source_type"] == "web"
     assert source["content"] == "Fetched page"
+
+
+def test_ingest_url_route_is_registered(client, monkeypatch) -> None:
+    from app.api.routes import sources as sources_routes
+
+    monkeypatch.setattr(
+        sources_routes.service,
+        "fetch_url",
+        lambda url: "Stub web content",
+    )
+
+    response = client.post("/api/sources/url", json={"url": "https://example.com"})
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "source_type": "web",
+        "title": "https://example.com",
+        "content": "Stub web content",
+    }
