@@ -1,16 +1,28 @@
 import uuid
 
+from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.source import Source
+from app.models.subscription import Subscription
 from app.models.task import Task
 from app.schemas.source import SourceInput, SourceOutput
 from app.schemas.task import TaskCreateRequest, TaskResponse
+from app.services.subscription_service import SubscriptionService
 
 
 class TaskService:
     def create_task(self, session: Session, payload: TaskCreateRequest) -> TaskResponse:
+        subscription_service = SubscriptionService()
+        subscription = session.scalars(select(Subscription).order_by(Subscription.id)).first()
+
+        if subscription is not None and not subscription_service.can_submit(
+            task_usage=subscription.task_usage,
+            task_quota=subscription.task_quota,
+        ):
+            raise HTTPException(status_code=402, detail="Task quota exceeded")
+
         task = Task(
             id=str(uuid.uuid4()),
             title=payload.title,
@@ -30,6 +42,9 @@ class TaskService:
                     content=item.content,
                 )
             )
+
+        if subscription is not None:
+            subscription.task_usage += 1
 
         session.commit()
 
