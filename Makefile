@@ -4,6 +4,6 @@ backend-test:
 desktop-test:
 	cd apps/desktop && npm test
 
-lint:
+test:
 	cd apps/backend && python -m pytest tests/test_health.py -q
 	cd apps/desktop && npm run test -- --runInBand
