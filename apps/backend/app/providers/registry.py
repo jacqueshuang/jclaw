@@ -4,16 +4,31 @@ from app.providers.gemini_provider import GeminiProvider
 from app.providers.openai_provider import OpenAIProvider
 
 
+class UnknownProviderKeyError(KeyError):
+    def __init__(self, key: str, available_keys: list[str]) -> None:
+        message = (
+            f"Unknown provider key '{key}'. "
+            f"Available provider keys: {', '.join(available_keys)}"
+        )
+        super().__init__(message)
+
+
 class ProviderRegistry:
     def __init__(self) -> None:
+        providers: list[ModelProvider] = [
+            AnthropicProvider(),
+            OpenAIProvider(),
+            GeminiProvider(),
+        ]
         self._providers: dict[str, ModelProvider] = {
-            "anthropic": AnthropicProvider(),
-            "openai": OpenAIProvider(),
-            "gemini": GeminiProvider(),
+            provider.key: provider for provider in providers
         }
 
     def get(self, key: str) -> ModelProvider:
-        return self._providers[key]
+        provider = self._providers.get(key)
+        if provider is None:
+            raise UnknownProviderKeyError(key, self.keys())
+        return provider
 
     def keys(self) -> list[str]:
-        return list(self._providers.keys())
+        return sorted(self._providers.keys())
