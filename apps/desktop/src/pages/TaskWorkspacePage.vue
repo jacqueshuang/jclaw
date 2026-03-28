@@ -42,12 +42,12 @@ const taskStatus = computed(() => taskDetail.value?.status ?? null)
 const knowledgePack = computed(() => taskDetail.value?.knowledge_pack ?? null)
 const deliverable = computed(() => taskDetail.value?.deliverable ?? null)
 
-onMounted(async () => {
+async function loadTaskDetail(taskId: string) {
   detailLoading.value = true
   detailError.value = null
 
   try {
-    taskDetail.value = await getTask('latest')
+    taskDetail.value = await getTask(taskId)
   }
   catch {
     detailError.value = '任务详情加载失败，请稍后重试。'
@@ -55,12 +55,21 @@ onMounted(async () => {
   finally {
     detailLoading.value = false
   }
+}
+
+onMounted(async () => {
+  if (!taskStore.latestTaskId.value) {
+    return
+  }
+
+  await loadTaskDetail(taskStore.latestTaskId.value)
 })
 
 async function submitTask(payload: { title: string; user_prompt: string; sources: Array<{ source_type: 'text'; title: string; content: string }> }) {
   submitError.value = null
   try {
-    await taskStore.submitTask(payload)
+    const task = await taskStore.submitTask(payload)
+    await loadTaskDetail(task.id)
   }
   catch {
     submitError.value = '任务提交失败，请稍后重试。'

@@ -7,7 +7,15 @@
 - `docker compose up -d`
 - `make backend-test`
 - `make desktop-test`
+- `make lint`
 - `make test`
 
+## Local run
+1. `docker compose up -d`
+2. `cd apps/backend && uvicorn app.main:app --reload`
+3. `cd apps/desktop && npm install && npm run dev`
+4. `cd apps/desktop/src-tauri && cargo tauri dev`
+
 ## Smoke expectation
-- In current bootstrap state, `make test` is expected to fail with missing `apps/backend` and `apps/desktop` directories until app scaffolds are added.
+- `make backend-test` should pass.
+- `make desktop-test` should pass.

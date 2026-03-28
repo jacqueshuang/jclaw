@@ -115,37 +115,62 @@ describe('TaskWorkspacePage', () => {
     expect(wrapper.text()).toContain('任务提交失败，请稍后重试。')
   })
 
-  it('shows detail loading state while fetching task detail', async () => {
+  it('shows detail loading state while fetching submitted task detail', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ id: 'task-1' }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
     vi.mocked(api.getTask).mockImplementation(() => new Promise(() => {}))
 
     const wrapper = mount(TaskWorkspacePage)
+
+    await wrapper.get('[aria-label="任务标题"]').setValue('Task')
+    await wrapper.get('[aria-label="任务目标"]').setValue('Prompt')
+    await wrapper.get('form').trigger('submit')
     await flushPromises()
 
     expect(wrapper.text()).toContain('任务详情加载中...')
   })
 
-  it('shows detail error when fetching task detail fails', async () => {
+  it('shows detail error when fetching submitted task detail fails', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ id: 'task-1' }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
     vi.mocked(api.getTask).mockRejectedValue(new Error('network'))
 
     const wrapper = mount(TaskWorkspacePage)
 
+    await wrapper.get('[aria-label="任务标题"]').setValue('Task')
+    await wrapper.get('[aria-label="任务目标"]').setValue('Prompt')
+    await wrapper.get('form').trigger('submit')
     await flushPromises()
 
     expect(wrapper.text()).toContain('任务详情加载失败，请稍后重试。')
   })
 
-  it('renders delivered task panels', async () => {
+  it('renders delivered draft markdown for submitted task detail', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ id: 'task-1' }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
     vi.mocked(api.getTask).mockResolvedValue({
       status: 'delivered',
       knowledge_pack: { summary: 'Research summary', outline: '- intro' },
-      deliverable: { content_markdown: '# Draft', content_type: 'article' },
+      deliverable: { content_markdown: '# Draft\n\nBody', content_type: 'article' },
     })
 
     const wrapper = mount(TaskWorkspacePage)
 
+    await wrapper.get('[aria-label="任务标题"]').setValue('Task')
+    await wrapper.get('[aria-label="任务目标"]').setValue('Prompt')
+    await wrapper.get('form').trigger('submit')
     await flushPromises()
 
-    expect(api.getTask).toHaveBeenCalledWith('latest')
+    expect(api.getTask).toHaveBeenCalledWith('task-1')
     expect(wrapper.text()).toContain('Research summary')
     expect(wrapper.text()).toContain('# Draft')
   })

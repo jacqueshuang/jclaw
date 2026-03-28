@@ -1,6 +1,5 @@
 import uuid
 
-import app.api.routes.deliverables as deliverables_routes
 import app.models.deliverable  # noqa: F401
 import app.models.knowledge_pack  # noqa: F401
 import pytest
@@ -149,8 +148,14 @@ def test_sqlite_enforces_foreign_keys_in_tests(db_session: Session) -> None:
     db_session.rollback()
 
 
-def test_deliverables_route_module_is_explicit_placeholder() -> None:
-    assert not hasattr(deliverables_routes, "router")
+def test_get_deliverable_returns_delivered_content(client, seeded_delivered_task) -> None:
+    response = client.get(f"/api/deliverables/{seeded_delivered_task.id}")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "content_markdown": "# Delivered article",
+        "content_type": "article",
+    }
 
 
 

@@ -14,16 +14,24 @@ type TaskPayload = {
   sources: TextSource[]
 }
 
+type TaskSubmission = {
+  id: string
+}
+
 const latestPayload = ref<TaskPayload | null>(null)
+const latestTaskId = ref<string | null>(null)
 
 export function useTaskStore() {
   async function submitTask(payload: TaskPayload) {
     latestPayload.value = payload
-    return createTask(payload)
+    const response = await createTask(payload) as TaskSubmission
+    latestTaskId.value = response.id
+    return response
   }
 
   return {
     latestPayload,
+    latestTaskId,
     submitTask,
   }
 }

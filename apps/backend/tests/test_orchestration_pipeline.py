@@ -118,6 +118,36 @@ def test_run_task_pipeline_executes_orchestration_stages(monkeypatch, testing_se
         session.close()
 
 
+def test_submit_run_pipeline_and_get_detail_returns_draft_markdown(
+    client,
+    monkeypatch,
+    testing_session_local,
+) -> None:
+    monkeypatch.setattr("app.jobs.tasks.SessionLocal", testing_session_local, raising=False)
+    submit_response = client.post(
+        "/api/tasks",
+        json={
+            "title": "Write market overview",
+            "user_prompt": "Research AI browser agents and write an article.",
+            "sources": [
+                {"source_type": "text", "title": "brief", "content": "Focus on 2026 products."}
+            ],
+        },
+    )
+
+    assert submit_response.status_code == 201
+    task_id = submit_response.json()["id"]
+
+    run_task_pipeline(task_id)
+
+    detail_response = client.get(f"/api/tasks/{task_id}")
+
+    assert detail_response.status_code == 200
+    detail_body = detail_response.json()
+    assert detail_body["status"] == "delivered"
+    assert detail_body["deliverable"]["content_markdown"].startswith("# Draft")
+
+
 def test_run_task_pipeline_persists_knowledge_pack_and_deliverable(
     db_session: Session,
     seeded_task: Task,
