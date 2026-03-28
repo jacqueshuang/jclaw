@@ -2,8 +2,8 @@
 
 ## 项目结构
 - `apps/backend`：FastAPI + SQLAlchemy + Celery 后端
-- `apps/desktop`：Vite + Vue 3 桌面前端
-- `apps/desktop/src-tauri`：Tauri 2 + Rust 桌面壳
+- `apps/desktop`：OpenClaw Console 桌面前端（Vite + Vue 3）
+- `apps/desktop/src-tauri`：OpenClaw Console 桌面壳（Tauri 2 + Rust）
 - `docker-compose.yml`：本地 PostgreSQL / Redis 依赖
 
 ## 环境要求
@@ -51,7 +51,7 @@ cargo test
 docker compose up -d
 ```
 
-### 2. 启动后端 API
+### 2. 启动后端 API（可选）
 ```bash
 cd apps/backend
 source .venv/bin/activate
@@ -60,42 +60,44 @@ uvicorn app.main:app --reload
 
 默认地址：`http://127.0.0.1:8000`
 
-### 3. 启动前端开发服务
+### 3. 启动桌面应用
 ```bash
 cd apps/desktop
-npm run dev
+npm run tauri:dev
 ```
 
-默认地址：`http://127.0.0.1:5173`
+桌面应用启动后会先检测 OpenClaw 是否已安装：
+- 未安装：首页主按钮显示“安装”
+- 已安装：首页主按钮显示“已安装”
 
-### 4. 启动桌面应用
-```bash
-cd apps/desktop/src-tauri
-cargo tauri dev
-```
+当前首版控制台包含四个一级模块：
+- 安装
+- Skills
+- Channel
+- Agent
 
-当前 Rust 侧后端启动命令定义在 `apps/desktop/src-tauri/src/backend.rs`，默认通过：
-```bash
-python -m uvicorn app.main:app
-```
-启动后端。
+安装路径支持两种方向：
+- 在线安装：已接通桌面端安装入口与状态流转
+- 离线安装：已预留桌面端离线安装入口，离线包选择流程将在后续接入
 
 ## 测试与验证
-## Verification targets
-- `docker compose up -d`
-- `make backend-test`
-- `make desktop-test`
-- `make lint`
-- `make test`
+桌面端当前验证闭环：
 
-也可以分别执行：
-
-### 后端测试
 ```bash
-cd apps/backend
-source .venv/bin/activate
-python -m pytest
+npm --prefix apps/desktop install
+npm --prefix apps/desktop test
+cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml
+npm --prefix apps/desktop run build
+npm --prefix apps/desktop run tauri:build
 ```
+
+期望结果：
+- Vitest 通过
+- Rust 测试通过
+- Vite build 成功
+- Tauri build 成功并产出桌面 bundle
+
+如需分别执行：
 
 ### 前端测试
 ```bash
@@ -107,6 +109,13 @@ npm test
 ```bash
 cd apps/desktop/src-tauri
 cargo test
+```
+
+### 桌面端构建验证
+```bash
+cd apps/desktop
+npm run build
+npm run tauri:build
 ```
 
 ## 部署说明
@@ -132,7 +141,7 @@ Celery worker 启动示例：
 cd apps/backend
 source .venv/bin/activate
 pip install -e ".[test,providers]"
-celery -A app.jobs.celery_app.celery_app worker --loglevel=info
+python -m celery -A app.jobs.celery_app.celery_app worker --loglevel=info
 ```
 
 部署前至少确认：
@@ -146,11 +155,13 @@ celery -A app.jobs.celery_app.celery_app worker --loglevel=info
 cd apps/desktop
 npm install
 npm run build
-cd src-tauri
-cargo tauri build
+npm run tauri:build
 ```
 
-构建产物会由 Tauri 输出到其默认构建目录。
+当前 macOS 默认产物为：
+- `apps/desktop/src-tauri/target/release/bundle/macos/jclaw-desktop.app`
+
+构建时会先自动执行前端构建，再由 Tauri 产出桌面应用包。
 
 ## Smoke expectation
 - `make backend-test` should pass.

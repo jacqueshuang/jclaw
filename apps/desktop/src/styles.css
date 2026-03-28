@@ -2,32 +2,223 @@
   box-sizing: border-box;
 }
 
+:root {
+  color: #fff;
+  background: #0a0a0a;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-width: 1280px;
+  background: #0a0a0a;
 }
 
-.task-workspace {
-  padding: 24px;
+button {
+  font: inherit;
 }
 
-.task-workspace form {
+.console-shell {
+  min-height: 100vh;
   display: grid;
+  grid-template-columns: 240px 1fr;
+  background: #0a0a0a;
+}
+
+.console-sidebar {
+  border-right: 1px solid #242424;
+  padding: 28px 18px;
+}
+
+.console-brand {
+  font-size: 28px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: #fff;
+}
+
+.console-nav {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.console-nav-item {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #d6d6d6;
+  text-align: left;
+  padding: 12px 14px;
+}
+
+.console-nav-item--active {
+  background: #c9a962;
+  color: #0a0a0a;
+}
+
+.console-main {
+  padding: 40px 48px;
+  display: grid;
+  gap: 24px;
+}
+
+.console-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.console-eyebrow {
+  margin: 0;
+  color: #8b8b8b;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.console-header h1 {
+  margin: 8px 0;
+  font-size: 40px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.console-subtitle {
+  margin: 0;
+  color: #9d9d9d;
+}
+
+.console-status-badge {
+  padding: 8px 12px;
+  border: 1px solid #6b2c2c;
+  background: #2a1414;
+  color: #f0b0b0;
+  font-size: 12px;
+}
+
+.install-card {
+  border: 1px solid #242424;
+  background: #111;
+  padding: 28px;
+  display: grid;
+  gap: 18px;
+}
+
+.install-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.install-card__label {
+  margin: 0 0 8px;
+  color: #8b8b8b;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.install-card h2 {
+  margin: 0 0 10px;
+  font-size: 32px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.install-card__badge {
+  align-self: start;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+}
+
+.install-card__badge--checking {
+  background: #2a2414;
+  border-color: #66542a;
+  color: #f3d28a;
+}
+
+.install-card__badge--installed {
+  background: #132519;
+  border-color: #2c6f3c;
+  color: #8fe0a4;
+}
+
+.install-card__badge--not_installed,
+.install-card__badge--install_failed {
+  background: #2a1414;
+  border-color: #6b2c2c;
+  color: #f0b0b0;
+}
+
+.install-card__badge--installing {
+  background: #1b2133;
+  border-color: #31456b;
+  color: #9fc2ff;
+}
+
+.install-card__actions {
+  display: flex;
   gap: 12px;
-  max-width: 720px;
 }
 
-.task-workspace label {
+.install-card__primary,
+.install-card__secondary {
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #fff;
+}
+
+.install-card__primary {
+  background: #c9a962;
+  color: #0a0a0a;
+}
+
+.install-card__secondary {
+  border-color: #2a2a2a;
+}
+
+.install-card__path,
+.install-card__message {
+  margin: 0;
+  color: #b1b1b1;
+}
+
+.summary-grid {
   display: grid;
-  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
 }
 
-.task-workspace input,
-.task-workspace textarea {
-  width: 100%;
-  padding: 8px;
+.summary-card {
+  border: 1px solid #242424;
+  background: #111;
+  padding: 20px;
 }
 
-.task-workspace button {
-  width: fit-content;
+.summary-card__label {
+  margin: 0 0 8px;
+  color: #8b8b8b;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.module-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.module-shell {
+  border: 1px solid #242424;
+  background: #111;
+  padding: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.module-shell__label {
+  margin: 0;
+  color: #8b8b8b;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
 }
