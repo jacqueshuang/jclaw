@@ -1,0 +1,18 @@
+[package]
+name = "jclaw-desktop"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "jclaw_desktop"
+path = "src/lib.rs"
+
+[[bin]]
+name = "jclaw-desktop"
+path = "src/main.rs"
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
